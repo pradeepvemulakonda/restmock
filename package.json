@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./bin/www"
   },
+  "bin": "./bin/www",
   "main": "SET DEBUG=restmock:* & npm start",
   "dependencies": {
     "cookie-parser": "~1.4.4",

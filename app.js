@@ -9,7 +9,7 @@ const indexRouter = require('./routes/index');
 const X_CORRELATION_ID = 'x-correlation-id';
 
 const options = yargs
-  .usage('Usage: -p <path/to/mock/file/base/directory')
+  .usage('Usage: -b <path/to/mock/file/base/directory')
   .option('b', { alias: 'basepath', description: 'path to base directory where mock project files are present', demandOption: true})
   .option('p', { alias: 'port', description: 'server port', demandOption: false})
   .argv;
@@ -25,7 +25,7 @@ function validatePath(path) {
 
 function validatePathNotEmpty(path) {
   const isEmptyDirectory = fs.readdirSync(path).length === 0;
-  if(!isEmptyDirectory) {
+  if(isEmptyDirectory) {
     throw new Error(`No mocks found at : ${path}`);
   }
   console.log(`Serving the mocks from: ${path}`);
