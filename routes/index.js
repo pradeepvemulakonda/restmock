@@ -3,7 +3,8 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  const basepath = req.app.get('basepath');
+  res.render('index', { title: 'restmock', basepath: basepath });
 });
 
 module.exports = router;

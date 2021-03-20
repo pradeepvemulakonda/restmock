@@ -8,10 +8,14 @@ block content
     li  x-correlation-id as the mock selector 
     li  file directory structure as the path of the endpoint 
     li  json file as the response of the api
+    li  file should be of the format {uniqueIdForApi}-{requiredHttpStausCode}// Should not contain the delay
 
-  h2 The x-correlation-id header should be if the format '{uniqueIdForApi}-{requiredHttpStausCode}-{responseDelay}'
+  h5 The x-correlation-id header should be if the format '{uniqueIdForApi}-{requiredHttpStausCode}-{responseDelay}'
   ol 
     li uniqueIdForApi --- Can be any random number, recommended be unique per api.
     li requiredHttpStatusCode --- should be a number between 200-599 (http status codes)
-    li resopnseDelay --- can be used to delay the response. Simulate delay. Milliseconds   
+    li resopnseDelay --- can be used to delay the response. Simulate delay. Milliseconds
+
+
+  h3 Mock folder in use: #{basepath} 
 
