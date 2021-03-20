@@ -37,6 +37,6 @@ The x-correlation-id header should be of the format '{uniqueIdForApi}-{requiredH
 > -  to return a 500, create a file 12345-500.json and for a 400, 12345-400.json.
 > -  the x-correlation-id should match the file name. So to get a 400 response, x-correlation-id should be 12345-400.
 
-> x-correlation-id header needs to be set for the mock server to work
+> ## x-correlation-id header needs to be set for the mock server to work
 
 
