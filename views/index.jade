@@ -9,6 +9,7 @@ block content
     li  file directory structure as the path of the endpoint 
     li  json file as the response of the api
     li  file should be of the format {uniqueIdForApi}-{requiredHttpStausCode}// Should not contain the delay
+    li if no basepath is provided, the public folder would be used to search for mocks.
 
   h5 The x-correlation-id header should be if the format '{uniqueIdForApi}-{requiredHttpStausCode}-{responseDelay}'
   ol 
@@ -19,3 +20,19 @@ block content
 
   h3 Mock folder in use: #{basepath} 
 
+  h2 How to use 
+
+  p clone project 
+  p run  'npm install -g'
+  p run  'restmock -b "path to mocks base directory"'
+  p by default the server runs at port 3000
+  p set localhost:3000 as the host for your mock API's 
+  p If API is locahost:3000/test/api and x-correlation-id is 12345-200-1000
+  p Then 
+  ul 
+    li in the basepath directory, create  a directory test/api 
+    li create a file 12345-200.json
+    li the 1000 will be used to set the response delay 
+    li the 200 in the file name denotes the response http status the mock will return.
+    li to return a 500, create a file 12345-500.json and for a 400, 12345-400.json.
+    li the x-correlation-id should match the file name. So to get a 400 response, x-correlation-id should be 12345-400.
