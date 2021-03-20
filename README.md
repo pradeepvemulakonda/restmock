@@ -1,4 +1,4 @@
-![Alt text](./restmock.svg)
+<img src="./restmock.svg" height="91" width="300">
 
 ## Welcome to restmock
 
