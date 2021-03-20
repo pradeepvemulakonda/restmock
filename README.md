@@ -30,10 +30,10 @@ The x-correlation-id header should be of the format '{uniqueIdForApi}-{requiredH
 > If API is locahost:3000/test/api and x-correlation-id is 12345-200-1000
 > Then
 
--  in the basepath directory, create a directory test/api
--  create a file 12345-200.json
--  the 1000 will be used to set the response delay
--  the 200 in the file name denotes the response http status the mock will return.
--  to return a 500, create a file 12345-500.json and for a 400, 12345-400.json.
--  the x-correlation-id should match the file name. So to get a 400 response, x-correlation-id should be 12345-400.
+> -  in the basepath directory, create a directory test/api
+> -  create a file 12345-200.json
+> -  the 1000 will be used to set the response delay
+> -  the 200 in the file name denotes the response http status the mock will return.
+> -  to return a 500, create a file 12345-500.json and for a 400, 12345-400.json.
+> -  the x-correlation-id should match the file name. So to get a 400 response, x-correlation-id should be 12345-400.
 
