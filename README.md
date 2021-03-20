@@ -1,4 +1,4 @@
-# restmock
+![Alt text](./restmock1.svg)
 
 ## Welcome to restmock
 
