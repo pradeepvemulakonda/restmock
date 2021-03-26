@@ -7,6 +7,9 @@ var yargs = require('yargs');
 var fs = require('fs');
 const indexRouter = require('./routes/index');
 const X_CORRELATION_ID = 'x-correlation-id';
+const createMiddleware = require('@apidevtools/swagger-express-middleware');
+const SwaggerParser = require("@apidevtools/swagger-parser");
+var jsf = require("json-schema-faker");
 
 const options = yargs
   .usage('Usage: -b < /to/mock/file/base/directory')
@@ -66,7 +69,32 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
+
+
+
+// // Initialize Swagger Express Middleware with our Swagger file
+// let swaggerFile = path.join(__dirname, 'PetStore.yaml');
+// parseSwagger(swaggerFile);
+// createMiddleware(swaggerFile, app, (err, middleware) => {
+
+//   // Add all the Swagger Express Middleware, or just the ones you need.
+//   // NOTE: Some of these accept optional options (omitted here for brevity)
+//   app.use(
+//     middleware.metadata(),
+//     middleware.CORS(),
+//     middleware.files(),
+//     middleware.parseRequest(),
+//     middleware.validateRequest(),
+//     middleware.mock()
+//   );
+// });
+
+app.post('/upload', async (req, res) => {
+  let swaggerFile = path.join(__dirname, 'PetStore.yaml');
+  await parseSwagger(swaggerFile);
+  res.json('{}');
+});
 
 app.use(function (req, res, next) {
   var correlationId = req.header(X_CORRELATION_ID);
@@ -118,3 +146,18 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
+
+
+async function parseSwagger(swaggerFile) {
+  try {
+    let api = await SwaggerParser.validate(swaggerFile);
+    console.log("API name: %s, Version: %s", api.info.title, api.info.version);
+    const schema = api.paths["/pet/{petId}"].get.responses[200].schema;
+    const syncValue = jsf.generate(schema);
+    console.log('json', syncValue);
+  }
+  catch (err) {
+    console.error(err);
+  }
+}
+
