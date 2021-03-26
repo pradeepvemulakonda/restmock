@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  header.header.header-local
+    h1.header-text=title
+  div.container-fluid
+    div.main.main-padded
+      form(action='/upload', method='POST', enctype="multipart/form-data")
+        h2 Upload a swagger to generate mocks
+        div.form-group
+          label.input-label Unique Correlation Prefix ID:
+          span.label.label-neutral unique Id per swagger
+          input.input-field(type='text', name='correlationPrefix', value='')
+          br
+          label.input-label Swagger file:
+          span.label.label-neutral yaml file
+          input.input-field.upload(type='file', name='swagger', value='')
+        button.btn.btn-primary(type='submit') Upload and Generate mocks
