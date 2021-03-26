@@ -7,12 +7,12 @@ block content
     div.main.main-padded
       form(action='/upload', method='POST', enctype="multipart/form-data")
         h2 Upload a swagger to generate mocks
-        div.form-group
-          label.input-label Unique Correlation Prefix ID:
+        div.mb-3
+          label.form-label Unique Correlation Prefix ID:
           span.label.label-neutral unique Id per swagger
-          input.input-field(type='text', name='correlationPrefix', value='')
+          input.form-control(type='text', name='correlationPrefix', value='')
           br
-          label.input-label Swagger file:
+          label.form-label Swagger file:
           span.label.label-neutral yaml file
-          input.input-field.upload(type='file', name='swagger', value='')
+          input.form-control.upload(type='file', name='swagger', value='')
         button.btn.btn-primary(type='submit') Upload and Generate mocks
