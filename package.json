@@ -8,12 +8,23 @@
   "bin": "./bin/www",
   "main": "SET DEBUG=restmock:* & npm start",
   "dependencies": {
+    "async": "^1.2.1",
+    "colors": "^1.1.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
+    "jade": "^1.11.0",
     "morgan": "~1.9.1",
-    "yargs": "13.2"
+    "pug": "2.0.0-beta11",
+    "uuid": "^8.3.2",
+    "yargs": "~13.2"
+  },
+  "devDependencies": {
+    "eslint": "^7.22.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1"
   }
 }
