@@ -5,7 +5,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var yargs = require('yargs');
 var fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
+var busboy = require('connect-busboy');
+var fs = require('fs-extra'); 
 const indexRouter = require('./routes/index');
+const setupRouter = require('./routes/setup');
 const X_CORRELATION_ID = 'x-correlation-id';
 
 const options = yargs
@@ -60,7 +64,8 @@ app.set('basepath', basePath);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-app.use(express.static('public'))
+app.use(busboy());
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -68,6 +73,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', indexRouter);
+app.use('/setup', setupRouter);
 
 app.route('/upload')
   .post(function (req, res, next) {
@@ -86,7 +92,7 @@ app.route('/upload')
       file.pipe(fstream)
       fstream.on('close', function () {
         console.log('Upload Finished of ' + filename)
-        res.redirect('/') // where to go next
+        res.redirect('/setup') // where to go next
       })
     })
   })
