@@ -3,6 +3,7 @@
 }
 
 .header-local {
+  display: flex;  
   padding: 10px;
   text-align: center;
   background: darkcyan;
