@@ -60,6 +60,7 @@ app.set('basepath', basePath);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.use(express.static('public'))
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -67,6 +68,29 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', indexRouter);
+
+app.route('/upload')
+  .post(function (req, res, next) {
+    req.pipe(req.busboy)
+    req.busboy.on('file', function (fieldname, file, filename) {
+      console.log('Uploading: ', filename, file)
+      // Path where image will be uploaded
+      const fileToBeUploaded = path.join(__dirname, '/swagger/', filename)
+      let finalFileName = fileToBeUploaded
+      if (fs.existsSync(fileToBeUploaded)) {
+        const fileName = fileToBeUploaded.split('.')[0]
+        const fileExtension = fileToBeUploaded.split('.')[1]
+        finalFileName = fileName + uuidv4().substr(1, 6) + '.' + fileExtension
+      }
+      const fstream = fs.createWriteStream(finalFileName)
+      file.pipe(fstream)
+      fstream.on('close', function () {
+        console.log('Upload Finished of ' + filename)
+        res.redirect('/') // where to go next
+      })
+    })
+  })
+
 
 app.use(function (req, res, next) {
   var correlationId = req.header(X_CORRELATION_ID);
