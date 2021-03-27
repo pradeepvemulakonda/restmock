@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid')
 const busboy = require('connect-busboy')
 const fs = require('fs-extra')
 const low = require('lowdb')
+const _ = require('lodash')
 const SwaggerParser = require('@apidevtools/swagger-parser')
 const FileSync = require('lowdb/adapters/FileSync')
 const indexRouter = require('./routes/index')
@@ -26,6 +27,15 @@ const adapter = new FileSync('database/db.json')
 const db = low(adapter)
 db.defaults({ apis: [] })
   .write()
+
+db._.mixin({
+  pushUnique: function (collection, uniqueKey, newElement) {
+    const index = collection.findIndex((databaseElement) => databaseElement[uniqueKey] === newElement[uniqueKey])
+    index !== -1 && collection.splice(index, 1)
+    collection.push(newElement)
+    return collection
+  }
+})
 
 function validatePath (path) {
   const isPathValid = fs.existsSync(path)
@@ -101,9 +111,13 @@ app.route('/upload')
         console.log('Upload Finished of ' + filename)
         const api = await parseSwagger(finalFileName)
         console.info('api', api)
+        const transformedPathData = transformPathData(api)
+        console.debug('-###->', transformedPathData)
+
         db.get('apis')
-          .push({ name: api.basePath, paths: api.paths })
+          .pushUnique('name', { name: path.join(api.host, api.basePath), paths: transformedPathData })
           .write()
+
         // Set some defaults (required if your JSON file is empty)
         res.redirect('/setup') // where to go next
       })
@@ -164,3 +178,10 @@ app.use(function (err, req, res, next) {
 })
 
 module.exports = app
+function transformPathData (api) {
+  return _.mapValues(api.paths, (pathDetails) => {
+    return _.mapValues(pathDetails, (pathDetail) => {
+      return _.get(pathDetail, 'responses')
+    })
+  })
+}
