@@ -13,6 +13,7 @@ const SwaggerParser = require('@apidevtools/swagger-parser')
 const FileSync = require('lowdb/adapters/FileSync')
 const indexRouter = require('./routes/index')
 const setupRouter = require('./routes/setup')
+const MockPathUtil = require('./modules/mock-path')
 const X_CORRELATION_ID = 'x-correlation-id'
 
 const options = yargs
@@ -37,42 +38,20 @@ db._.mixin({
   }
 })
 
-function validatePath (path) {
-  const isPathValid = fs.existsSync(path)
-  if (!isPathValid) {
-    throw new Error(`Path not found: ${path}`)
-  }
-  console.log(`Setting the mock base directory to ${path}`)
+const transformPathData = (api) => {
+  const { paths } = api
+
+  return _.mapValues(paths, (pathDetails) => {
+    return _.mapValues(pathDetails, (pathDetail) => {
+      return _.get(pathDetail, 'responses')
+    })
+  })
 }
 
-function validatePathNotEmpty (path) {
-  const isEmptyDirectory = fs.readdirSync(path).length === 0
-  if (isEmptyDirectory) {
-    throw new Error(`No mocks found at : ${path}`)
-  }
-  console.log(`Serving the mocks from: ${path}`)
-}
+const mockpathUtil = new MockPathUtil(fs, path)
 
-function parseCorrelationId (req) {
-  const correlationId = req.get(X_CORRELATION_ID)
-  const correlationElements = correlationId.split('-')
-  const requestedResponseCode = parseInt(correlationElements[1])
-  const responseTimeDelay = parseInt(correlationElements[2]) || 0
-  return { requestedResponseCode, responseTimeDelay }
-}
-
-// the url should not contain the response delay provided as part of correlation id
-function updateUrl (req) {
-  const correlationId = req.get(X_CORRELATION_ID)
-  const correlationElements = correlationId.split('-')
-  correlationElements.length > 2 && correlationElements.pop()
-  const fileName = correlationElements.join('-')
-  req.url = path.join(basePath, req.originalUrl, fileName + '.json')
-  req.method = 'GET'
-}
-
-validatePath(basePath)
-validatePathNotEmpty(basePath)
+mockpathUtil.validatePath(basePath)
+mockpathUtil.validatePathNotEmpty(basePath)
 
 const app = express()
 app.port = options.port
@@ -131,7 +110,7 @@ const parseSwagger = async (swagger) => {
 app.use(function (req, res, next) {
   const correlationId = req.header(X_CORRELATION_ID)
   if (correlationId) {
-    updateUrl(req)
+    mockpathUtil.updateUrl(req)
     next()
   } else {
     return next(createError(400, `Invalid ${X_CORRELATION_ID}`))
@@ -139,7 +118,7 @@ app.use(function (req, res, next) {
 })
 
 app.use(function (req, res, next) {
-  const { requestedResponseCode, responseTimeDelay } = parseCorrelationId(req)
+  const { requestedResponseCode, responseTimeDelay } = mockpathUtil.parseCorrelationId(req)
   const filePath = path.join(req.url)
   console.log(`Mock file being processed is: ${filePath}`)
   fs.readFile(filePath, 'utf8', (err, data) => {
@@ -178,10 +157,3 @@ app.use(function (err, req, res, next) {
 })
 
 module.exports = app
-function transformPathData (api) {
-  return _.mapValues(api.paths, (pathDetails) => {
-    return _.mapValues(pathDetails, (pathDetail) => {
-      return _.get(pathDetail, 'responses')
-    })
-  })
-}
