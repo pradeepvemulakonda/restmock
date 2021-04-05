@@ -1,19 +1,22 @@
-const createError = require('http-errors')
-const express = require('express')
-const path = require('path')
-const cookieParser = require('cookie-parser')
-const logger = require('morgan')
-const yargs = require('yargs')
-const { v4: uuidv4 } = require('uuid')
-const busboy = require('connect-busboy')
-const fs = require('fs-extra')
-const low = require('lowdb')
-const _ = require('lodash')
-const SwaggerParser = require('@apidevtools/swagger-parser')
-const FileSync = require('lowdb/adapters/FileSync')
-const indexRouter = require('./routes/index')
-const setupRouter = require('./routes/setup')
-const MockPathUtil = require('./modules/mock-path')
+import _ from 'lodash'
+import { v4 as uuid } from 'uuid'
+import busboy from 'connect-busboy'
+import cookieParser from 'cookie-parser'
+import createError from 'http-errors'
+import express from 'express'
+import FileSync from 'lowdb/adapters/FileSync.js'
+import fs from 'fs-extra'
+import logger from 'morgan'
+import low from 'lowdb'
+import path from 'path'
+import SwaggerParser from '@apidevtools/swagger-parser'
+import yargs from 'yargs'
+
+import indexRouter from './routes/index.js'
+import setupRouter from './routes/setup.js'
+
+import { MockPathUtil, UrlUpdater } from './components/index.js'
+
 const X_CORRELATION_ID = 'x-correlation-id'
 
 const options = yargs
@@ -22,7 +25,7 @@ const options = yargs
   .option('p', { alias: 'port', description: 'server port', demandOption: false })
   .argv
 
-const basePath = options.basepath || path.join(__dirname, 'public')
+const basePath = options.basepath || path.join('.', 'public')
 
 const adapter = new FileSync('database/db.json')
 const db = low(adapter)
@@ -48,20 +51,20 @@ const transformPathData = (api) => {
   })
 }
 
-const mockpathUtil = new MockPathUtil(fs, path)
+const mockpathUtil = new MockPathUtil(basePath)
 
-mockpathUtil.validatePath(basePath)
-mockpathUtil.validatePathNotEmpty(basePath)
+mockpathUtil.validatePath()
+mockpathUtil.validatePathNotEmpty()
 
 const app = express()
 app.port = options.port
 app.set('basepath', basePath)
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'))
+app.set('views', path.join('.', 'views'))
 app.set('view engine', 'jade')
 app.use(busboy())
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join('.', 'public')))
 
 app.use(logger('dev'))
 app.use(express.json())
@@ -77,12 +80,12 @@ app.route('/upload')
     req.busboy.on('file', function (fieldname, file, filename) {
       console.log('Uploading: ', filename, file)
       // Path where image will be uploaded
-      const fileToBeUploaded = path.join(__dirname, '/swagger/', filename)
+      const fileToBeUploaded = path.join('.', '/swagger/', filename)
       let finalFileName = fileToBeUploaded
       if (fs.existsSync(fileToBeUploaded)) {
         const fileName = fileToBeUploaded.split('.')[0]
         const fileExtension = fileToBeUploaded.split('.')[1]
-        finalFileName = fileName + uuidv4().substr(1, 6) + '.' + fileExtension
+        finalFileName = fileName + uuid().substr(1, 6) + '.' + fileExtension
       }
       const fstream = fs.createWriteStream(finalFileName)
       file.pipe(fstream)
@@ -97,7 +100,7 @@ app.route('/upload')
           .pushUnique('name', { name: path.join(api.host, api.basePath), paths: transformedPathData })
           .write()
 
-        // Set some defaults (required if your JSON file is empty)
+        // Set some defaults (d if your JSON file is empty)
         res.redirect('/setup') // where to go next
       })
     })
@@ -110,7 +113,8 @@ const parseSwagger = async (swagger) => {
 app.use(function (req, res, next) {
   const correlationId = req.header(X_CORRELATION_ID)
   if (correlationId) {
-    mockpathUtil.updateUrl(req)
+    const urlUtil = new UrlUpdater(req)
+    urlUtil.updateUrl()
     next()
   } else {
     return next(createError(400, `Invalid ${X_CORRELATION_ID}`))
@@ -118,7 +122,8 @@ app.use(function (req, res, next) {
 })
 
 app.use(function (req, res, next) {
-  const { requestedResponseCode, responseTimeDelay } = mockpathUtil.parseCorrelationId(req)
+  const urlUtil = new UrlUpdater(req)
+  const { requestedResponseCode, responseTimeDelay } = urlUtil.parseCorrelationId()
   const filePath = path.join(req.url)
   console.log(`Mock file being processed is: ${filePath}`)
   fs.readFile(filePath, 'utf8', (err, data) => {
@@ -156,4 +161,4 @@ app.use(function (err, req, res, next) {
   })
 })
 
-module.exports = app
+export default app

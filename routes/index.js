@@ -1,10 +1,10 @@
-var express = require('express');
-var router = express.Router();
+import { Router } from 'express'
+const router = Router()
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  const basepath = req.app.get('basepath');
-  res.render('index.pug', { title: 'restmock', basepath: basepath });
-});
+router.get('/', function (req, res, next) {
+  const basepath = req.app.get('basepath')
+  res.render('index.pug', { title: 'restmock', basepath: basepath })
+})
 
-module.exports = router;
+export default router

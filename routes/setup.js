@@ -1,11 +1,10 @@
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express'
+const router = Router()
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  const basepath = req.app.get('basepath');
-  res.render('upload.pug', { title: 'restmock', basepath: basepath });
-});
+router.get('/', function (req, res, next) {
+  const basepath = req.app.get('basepath')
+  res.render('upload.pug', { title: 'restmock', basepath: basepath })
+})
 
-module.exports = router;
- 
+export default router
