@@ -31,7 +31,7 @@ const options = yargs
 
 const basePath = options.basepath || path.join(__dirname, 'public')
 
-const adapter = new FileSync('database/db.json')
+const adapter = new FileSync(path.join(__dirname, '..', 'database/db.json'))
 const db = low(adapter)
 db.defaults({ apis: [] })
   .write()
@@ -84,7 +84,7 @@ app.route('/upload')
     req.busboy.on('file', function (fieldname, file, filename) {
       console.log('Uploading: ', filename, file)
       // Path where image will be uploaded
-      const fileToBeUploaded = path.join(__dirname, '/swagger/', filename)
+      const fileToBeUploaded = path.join(__dirname, '..', '/swagger/', filename)
       let finalFileName = fileToBeUploaded
       if (fs.existsSync(fileToBeUploaded)) {
         const fileName = fileToBeUploaded.split('.')[0]
