@@ -8,9 +8,11 @@ import FileSync from 'lowdb/adapters/FileSync.js'
 import fs from 'fs-extra'
 import logger from 'morgan'
 import low from 'lowdb'
-import path from 'path'
+import path, { dirname } from 'path'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import yargs from 'yargs'
+
+import { fileURLToPath } from 'url'
 
 import indexRouter from './routes/index.js'
 import setupRouter from './routes/setup.js'
@@ -19,13 +21,15 @@ import { MockPathUtil, UrlUpdater } from './components/index.js'
 
 const X_CORRELATION_ID = 'x-correlation-id'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
 const options = yargs
   .usage('Usage: -b < /to/mock/file/base/directory')
   .option('b', { alias: 'basepath', description: 'path to base directory where mock project files are present', demandOption: false })
   .option('p', { alias: 'port', description: 'server port', demandOption: false })
   .argv
 
-const basePath = options.basepath || path.join('.', 'public')
+const basePath = options.basepath || path.join(__dirname, 'public')
 
 const adapter = new FileSync('database/db.json')
 const db = low(adapter)
@@ -61,10 +65,10 @@ app.port = options.port
 app.set('basepath', basePath)
 
 // view engine setup
-app.set('views', path.join('.', 'views'))
+app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'jade')
 app.use(busboy())
-app.use(express.static(path.join('.', 'public')))
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(logger('dev'))
 app.use(express.json())
@@ -80,7 +84,7 @@ app.route('/upload')
     req.busboy.on('file', function (fieldname, file, filename) {
       console.log('Uploading: ', filename, file)
       // Path where image will be uploaded
-      const fileToBeUploaded = path.join('.', '/swagger/', filename)
+      const fileToBeUploaded = path.join(__dirname, '/swagger/', filename)
       let finalFileName = fileToBeUploaded
       if (fs.existsSync(fileToBeUploaded)) {
         const fileName = fileToBeUploaded.split('.')[0]
