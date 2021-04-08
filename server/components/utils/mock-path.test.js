@@ -1,6 +1,5 @@
-/* eslint-disable no-undef */
 import { expect } from 'chai'
-import { MockPathUtil } from '../mock-path.js'
+import { MockPathUtil } from './mock-path.js'
 import mock from 'mock-fs'
 
 describe('Mock Path Utility', function () {

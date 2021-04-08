@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node ./server/bin/www",
-    "test": "_mocha -- --recursive \"./server/**/*.test.js\"",
-    "coverage": "c8 --reporter=lcov --reporter=text --all _mocha -- --recursive \"./server/**/*.test.js\"",
+    "test": "_mocha -- --recursive  \"./server/**/*.test.js\" --reporter nyan",
+    "coverage": "c8 --reporter=lcov --reporter=text --all mocha --recursive \"./server/**/*.test.js\"",
     "report": "c8 report"
   },
   "bin": "./server/bin/www",
