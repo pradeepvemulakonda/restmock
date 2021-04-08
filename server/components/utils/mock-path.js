@@ -1,4 +1,5 @@
 import fs from 'fs'
+import _ from 'lodash'
 
 class MockPathUtil {
   static get X_CORRELATION_ID () {
@@ -7,6 +8,16 @@ class MockPathUtil {
 
   constructor (mockPath) {
     this.mockPath = mockPath
+  }
+
+  static transformPathData (api) {
+    const { paths } = api
+
+    return _.mapValues(paths, (pathDetails) => {
+      return _.mapValues(pathDetails, (pathDetail) => {
+        return _.get(pathDetail, 'responses')
+      })
+    })
   }
 
   validatePath () {
